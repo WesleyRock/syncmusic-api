@@ -2,33 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Like;
 use App\Models\Post;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class LikeController extends Controller
 {
     public function like(Post $post)
     {
-        $like = Like::firstOrCreate([
-            'user_id' => Auth::id(),
-            'post_id' => $post->id,
+        $user = auth()->user();
+
+        if ($post->likes()->where('user_id', $user->id)->exists()) {
+            return response()->json(['message' => 'Post já curtido.'], 409);
+        }
+
+        $post->likes()->create([
+            'user_id' => $user->id,
         ]);
 
-        return response()->json(['message' => 'Post curtido.', 'like' => $like]);
+        return response()->json(['message' => 'Curtido com sucesso!']);
     }
 
     public function unlike(Post $post)
     {
-        $deleted = Like::where('user_id', Auth::id())
-                        ->where('post_id', $post->id)
-                        ->delete();
+        $user = auth()->user();
 
-        if ($deleted) {
-            return response()->json(['message' => 'Curtida removida.']);
-        }
+        $post->likes()->where('user_id', $user->id)->delete();
 
-        return response()->json(['message' => 'Você não tinha curtido esse post.']);
+        return response()->json(['message' => 'Descurtido com sucesso!']);
     }
 }
