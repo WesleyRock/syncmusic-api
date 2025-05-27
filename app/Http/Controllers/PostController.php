@@ -34,9 +34,13 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'content' => 'required|string',
-            'music' => 'nullable|string',
+       $request->validate([
+            'content' => 'required|string|max:280',
+            'music' => 'nullable|array',
+            'music.nameMusic' => 'nullable|string',
+            'music.nameArtist' => 'nullable|string',
+            'music.image' => 'nullable|string',
+            'music.colorCard' => 'nullable|string',
         ]);
 
         $post = Post::create([
@@ -52,6 +56,25 @@ class PostController extends Controller
     {
         $post = Post::with(['user', 'likes', 'comments'])->findOrFail($id);
         return $post;
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'content' => 'required|string|max:280',
+        ]);
+
+        $post = Post::findOrFail($id);
+
+        if ($post->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Não autorizado.'], 403);
+        }
+
+        $post->update([
+            'content' => $request->content,
+        ]);
+
+        return response()->json(['message' => 'Post atualizado com sucesso.', 'post' => $post]);
     }
 
     public function destroy($id)

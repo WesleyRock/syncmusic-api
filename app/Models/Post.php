@@ -11,6 +11,10 @@ class Post extends Model
 
     protected $fillable = ['content', 'music', 'user_id'];
 
+     protected $casts = [
+        'music' => 'array',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
