@@ -9,6 +9,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\SavedPostController;
+use App\Http\Controllers\ProfileController;
 
 RateLimiter::for('api', function (Illuminate\Http\Request $request) {
     return Limit::perMinute(60)->by($request->ip());
@@ -18,7 +19,6 @@ RateLimiter::for('api', function (Illuminate\Http\Request $request) {
 // Rotas públicas
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/logout', [AuthController::class, 'logout']);
 
 // Rotas protegidas
     Route::middleware('auth:sanctum')->group(function () {
@@ -28,6 +28,10 @@ RateLimiter::for('api', function (Illuminate\Http\Request $request) {
 
     Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
         return $request->user()->load('posts');
+    });
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout']);
     });
 
     Route::middleware('auth:sanctum')->group(function () {
@@ -51,6 +55,11 @@ RateLimiter::for('api', function (Illuminate\Http\Request $request) {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/posts/{post}/save', [SavedPostController::class, 'toggle']);
         Route::get('/saved', [SavedPostController::class, 'index']);
+    });
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/me', [ProfileController::class, 'show']);
+        Route::put('/me', [ProfileController::class, 'update']);
     });
 
 });
