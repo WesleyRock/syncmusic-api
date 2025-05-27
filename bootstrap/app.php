@@ -13,11 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Middleware global
-        $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
+        $middleware->append(middleware: \Illuminate\Http\Middleware\HandleCors::class);
     })
     ->withMiddleware(function (Middleware $middleware) {
-        // Grupo API
         $middleware->group('api', [
             EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
