@@ -24,6 +24,11 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
+    Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
+        return $request->user()->load('posts');
+    });
+
+
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::middleware('auth:sanctum')->group(function () {
