@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\SavedPostController;
 
 RateLimiter::for('api', function (Illuminate\Http\Request $request) {
     return Limit::perMinute(60)->by($request->ip());
@@ -15,21 +16,19 @@ RateLimiter::for('api', function (Illuminate\Http\Request $request) {
 
 
 // Rotas públicas
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
 // Rotas protegidas
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/user', function (Request $request) {
+            return $request->user();
     });
 
     Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
         return $request->user()->load('posts');
     });
-
-
-    Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/posts', [PostController::class, 'index']);
@@ -47,6 +46,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/posts/{post}/comments', [CommentController::class, 'index']);
         Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
         Route::delete('/posts/{post}/comments/{comment}', [CommentController::class, 'destroy']);
+    });
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/posts/{post}/save', [SavedPostController::class, 'toggle']);
+        Route::get('/saved', [SavedPostController::class, 'index']);
     });
 
 });
