@@ -9,27 +9,33 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    public function index(Post $post)
+   public function index(Post $post)
     {
-        return $post->comments()->with('user')->orderBy('created_at', 'asc')->get();
+        $comments = $post->comments()->with('user')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json($comments);
     }
 
     public function store(Request $request, Post $post)
     {
-        $request->validate([
-            'content' => 'required|string',
+        $validated = $request->validate([
+            'content' => 'required|string|max:500',
         ]);
 
-        $comment = Comment::create([
-            'user_id' => Auth::id(),
-            'post_id' => $post->id,
-            'content' => $request->content,
+        $comment = $post->comments()->create([
+            'user_id' => auth()->id(),
+            'content' => $validated['content'],
         ]);
 
-        return response()->json($comment, 201);
+        return response()->json([
+            'message' => 'Comentário criado com sucesso!',
+            'comment' => $comment->load('user')
+        ], 201);
     }
 
-    public function destroy(Post $post, Comment $comment)
+    public function destroy(Comment $comment)
     {
         if ($comment->user_id !== Auth::id()) {
             return response()->json(['error' => 'Não autorizado.'], 403);

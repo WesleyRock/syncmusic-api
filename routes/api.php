@@ -26,17 +26,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::get('/posts', [PostController::class, 'index']);
-    Route::post('/posts', [PostController::class, 'store']);
-    Route::get('/posts/{id}', [PostController::class, 'show']);
-    Route::delete('/posts/{id}', [PostController::class, 'destroy']);
-
     Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/posts/{post}/like', [LikeController::class, 'like']);
-    Route::delete('/posts/{post}/like', [LikeController::class, 'unlike']);
+        Route::get('/posts', [PostController::class, 'index']);
+        Route::post('/posts', [PostController::class, 'store']);
+        Route::get('/posts/{id}', [PostController::class, 'show']);
+        Route::delete('/posts/{id}', [PostController::class, 'destroy']);
     });
 
-    Route::get('/posts/{post}/comments', [CommentController::class, 'index']);
-    Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
-    Route::delete('/posts/{post}/comments/{comment}', [CommentController::class, 'destroy']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/posts/{post}/like', [LikeController::class, 'like']);
+        Route::delete('/posts/{post}/like', [LikeController::class, 'unlike']);
+    });
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/posts/{post}/comments', [CommentController::class, 'index']);
+        Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
+        Route::delete('/posts/{post}/comments/{comment}', [CommentController::class, 'destroy']);
+    });
+
 });
