@@ -10,6 +10,7 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\SavedPostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SpotifyController;
 
 RateLimiter::for('api', function (Illuminate\Http\Request $request) {
     return Limit::perMinute(60)->by($request->ip());
@@ -19,6 +20,7 @@ RateLimiter::for('api', function (Illuminate\Http\Request $request) {
 // Rotas públicas
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/spotify/search', [SpotifyController::class, 'search']);
 
 // Rotas protegidas
     Route::middleware('auth:sanctum')->group(function () {
