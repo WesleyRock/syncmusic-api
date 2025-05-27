@@ -8,12 +8,29 @@ use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
-    public function index()
+   public function index()
     {
-        return Post::with(['user', 'likes', 'comments'])
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+        return Post::with('user')
+            ->withCount(['likes', 'comments'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'content' => $post->content,
+                    'music' => $post->music,
+                    'user' => [
+                        'id' => $post->user->id,
+                        'name' => $post->user->name,
+                        'avatar' => $post->user->avatar,
+                    ],
+                    'likes_count' => $post->likes_count,
+                    'comments_count' => $post->comments_count,
+                    'created_at' => $post->created_at,
+                ];
+            });
     }
+
 
     public function store(Request $request)
     {
